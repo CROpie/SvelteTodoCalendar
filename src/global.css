@@ -1,5 +1,12 @@
+:root {
+    --header-height: 4rem;
+    --hover-color: blueviolet;
+}
+
 * {
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
+
+    font-family: system-ui;
 }

@@ -1,0 +1,5 @@
+How to organize layout over components?
+
+ie in App.svelte, #full-container is display:flex
+the children are both separate components.
+should they be in empty divs rather than being flex children?
