@@ -1,0 +1,130 @@
+{
+  "usernames": [
+    {
+      "id": 1,
+      "username": "default"
+    }
+  ],
+  "projects": [
+    {
+      "username": "default",
+      "projectName": "Lab Duties",
+      "id": 1
+    },
+    {
+      "username": "default",
+      "projectName": "Catalysis",
+      "id": 2
+    }
+  ],
+  "todos": [
+    {
+      "username": "default",
+      "projectID": 2,
+      "name": "Mitsunobu reaction",
+      "desc": "Book 7 page 12",
+      "duedate": "2023-06-05",
+      "notes": "Didn't run under nitrogen last time and it was still fine. Repeat reaction to make more starting material",
+      "id": 1
+    },
+    {
+      "username": "default",
+      "projectID": 1,
+      "name": "Waste Disposal",
+      "desc": "By 10:00 at the latest",
+      "duedate": "2023-06-06",
+      "notes": "Take down the TLC plates too",
+      "id": 2
+    },
+    {
+      "username": "default",
+      "projectID": 2,
+      "name": "Wash glassware",
+      "desc": "Do the syringe needles top",
+      "duedate": "2023-06-07",
+      "notes": "Make sure to put in the oven in preparation for tomorrow's reaction",
+      "id": 3
+    },
+    {
+      "username": "default",
+      "projectID": 1,
+      "name": "Waste Solvent Disposal",
+      "desc": "10:00 at the lobby",
+      "duedate": "2023-06-08",
+      "notes": "Make sure to bring back some empty carboys (if available)",
+      "id": 4
+    },
+    {
+      "username": "default",
+      "projectID": 2,
+      "name": "BCl3/AlCl3 reaction",
+      "desc": "Book 7 page 10",
+      "duedate": "2023-06-20",
+      "notes": "Enough material for a 1g scale reaction",
+      "id": 5
+    },
+    {
+      "username": "default",
+      "projectID": 1,
+      "name": "Liquid Nitrogen",
+      "desc": "Take it from floor 3 when it arrives",
+      "duedate": "2023-06-06",
+      "notes": "Asada has been doing freeze-pump-thaw cycles recently, so need to fill it to the brim",
+      "id": 6
+    },
+    {
+      "username": "default",
+      "projectID": 2,
+      "name": "Sonogashira coupling",
+      "desc": "Book 7 page 11",
+      "duedate": "2023-06-06",
+      "notes": "Use the fresh alkyne when it arrives",
+      "id": 7
+    },
+    {
+      "username": "default",
+      "projectID": 1,
+      "name": "Dry Ice",
+      "desc": "Move it to the storage container",
+      "duedate": "2023-06-07",
+      "notes": "Be sure to dispose of the plastic inside the container before filling it",
+      "id": 8
+    },
+    {
+      "username": "default",
+      "projectID": 2,
+      "name": "Chemical delivery",
+      "desc": "Materials for the next set of reactions",
+      "duedate": "2023-06-07",
+      "notes": "May need to order more AlCl3 soon",
+      "id": 9
+    },
+    {
+      "username": "default",
+      "projectID": 1,
+      "name": "Fume Hood Maintenance",
+      "desc": "Scheduled maintenance",
+      "duedate": "2023-06-10",
+      "notes": "Won't be able to use the fume hood on this day",
+      "id": 10
+    },
+    {
+      "username": "default",
+      "name": "gogo",
+      "duedate": "2023-06-08",
+      "desc": "lets",
+      "notes": "do it",
+      "projectID": 1,
+      "id": 11
+    },
+    {
+      "username": "default",
+      "name": "test47",
+      "duedate": "2023-06-09",
+      "desc": "abc",
+      "notes": "def",
+      "projectID": 1,
+      "id": 12
+    }
+  ]
+}

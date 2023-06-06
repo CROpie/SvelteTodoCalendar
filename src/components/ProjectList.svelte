@@ -33,9 +33,9 @@
     <li class="proj-button-container" on:click={() => dispatch('selectProject', -1)}>
         <div class="project" class:selected={selectedProjectID === -1}>All</div>
     </li>
-    {#each projectListData as project}
+    {#each projectListData as project (project.id)}
     <li class="proj-button-container" on:click={() => dispatch('selectProject', project.id)}>
-        <div class="project" class:selected={selectedProjectID === project.id}>{project.name}</div>
+        <div class="project" class:selected={selectedProjectID === project.id}>{project.projectName}</div>
     </li>
     {/each}
 
