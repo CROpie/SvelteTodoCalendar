@@ -1,6 +1,4 @@
 <script>
-    import NewProject from '$root/components/NewProject.svelte'
-
     import { createEventDispatcher } from "svelte";
     export let projectListData;
     export let selectedProjectID;
@@ -29,7 +27,6 @@
         newProject = false;
         newProjectName = '';
     }
-
 </script>
 
 <ul id="project-list">
@@ -47,37 +44,38 @@
     <form on:submit|preventDefault={submitHandler} class="proj-button-container">
         <input class="project proj-input-field" bind:value={newProjectName} autofocus>
     </form>
-    <!-- put in some sort of spacer to stop 'New project' moving down? some sort of css instead? 
-    {:else}
-    <li class="proj-button-container">
-        <div class="project spacer">space</div>
-    </li> -->
     {/if}
+
+    <li class="proj-button-container new-project" on:click={clickNewProject}>
+        <div class="project">New Project</div>
+    </li>
 
 </ul>
 
-
-
-<NewProject on:clickNewProject={clickNewProject}/>
-
 <style>
+    /* project list */
     #project-list {
         list-style-type: none;
+    }
+    .proj-button-container {
+        cursor: pointer;
     }
     .proj-button-container:hover {
         background-color: blueviolet;
     }
-
     .project {
         padding-left: 2rem;
         font-size: 2rem;
     }
-
     .selected {
         color: orange;
     }
 
-    /* click new project */
+    /* new project */
+    .new-project {
+        margin-top: 2rem;
+        color: greenyellow;
+    }
     .proj-input-field {
         max-width: 100%;
         color: white;

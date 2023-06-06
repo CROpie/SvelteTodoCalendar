@@ -10,6 +10,7 @@
     { name: "Catalysis",
       id: 2,
     },]
+    $: console.log(projectListData)
 
     // handle adding a new project
     const submitProject = (event) => {
