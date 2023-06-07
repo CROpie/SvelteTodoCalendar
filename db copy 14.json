@@ -3,10 +3,6 @@
     {
       "id": 1,
       "username": "default"
-    },
-    {
-      "username": "chris",
-      "id": 2
     }
   ],
   "projects": [
@@ -80,7 +76,7 @@
       "username": "default",
       "projectID": 2,
       "name": "Sonogashira coupling",
-      "desc": "Book 7 page 47",
+      "desc": "Book 7 page 11",
       "duedate": "2023-06-06",
       "notes": "Use the fresh alkyne when it arrives",
       "id": 7

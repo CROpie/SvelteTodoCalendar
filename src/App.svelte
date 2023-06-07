@@ -1,27 +1,86 @@
 <script>
+	import Login from '$root/components/Login.svelte'
   	import Header from '$root/components/Header.svelte'
+	import TimePeriodList from '$root/components/TimePeriodList.svelte'
 	import ProjectList from '$root/components/ProjectList.svelte'
   	import TodoView from '$root/components/TodoView.svelte'
+	import { onMount } from 'svelte'
 
-  	// database functions
+	/* INITIALIZATION */
+	onMount(async () => {
+		await getUsernamesFromDB()
+	})
+
+	/* LOG IN */
+	let loginFlag = false;
+	let username = '';
+
+	const loginSuccess = async (event) => {
+		username = event.detail
+		loginFlag = true;
+		await getProjectsFromDB(username)
+		await getTodosFromDB(username)
+		filterTodoList()
+	}
+
+	/* LOG OUT */
+	const logout = () => {
+		loginFlag = false;
+
+		// reset everything
+		username = '';
+
+		projectListData = []
+		todoListData = []
+
+		selectedTimePeriod = 'All'
+		selectedProjectID = -1
+		filteredTodoList = []
+	}
+
+  	/* DATABASE */
+	let usernameListData = []
   	let projectListData = []
   	let todoListData = []
 
+	// get
+	async function getUsernamesFromDB() {
+        let uri = 'http://localhost:3000/usernames';
+        const res = await fetch(uri);
+        const usersData = await res.json();
+        usersData.forEach((entry) => {
+            usernameListData.push(entry.username);
+        });
+    }
   	async function getProjectsFromDB() {
-        let uri = `http://localhost:3000/projects?username=default`;
+        let uri = `http://localhost:3000/projects?username=${username}`;
         const res = await fetch(uri);
         projectListData = await res.json();
   	}
-
   	async function getTodosFromDB() {
       // uri will include the username entered on login
-      let uri = `http://localhost:3000/todos?username=default`;
+      let uri = `http://localhost:3000/todos?username=${username}`;
       const res = await fetch(uri);
       todoListData = await res.json();
-	  filterTodoList()
   	}
+	// add
+	async function addUsernameToDB(event) {
+        const newUsername = event.detail;
+        let uri = 'http://localhost:3000/usernames';
+        await fetch(uri, {
+            method: 'POST',
+            body: JSON.stringify(newUsername),
+            headers: { 'Content-Type': 'application/json' },
+        });
 
-  	async function addProjectToDB(newProject) {
+		await getUsernamesFromDB()
+
+		// log in
+		loginFlag = true;
+		username = newUsername.username;
+    }
+  	async function addProjectToDB(event) {
+		const newProject = event.detail;
         let uri = `http://localhost:3000/projects`;
         await fetch(uri, {
             method: 'POST',
@@ -29,47 +88,77 @@
             headers: { 'Content-Type': 'application/json' },
         });
         getProjectsFromDB()
+		// automatically switch to new project: find created project id, set selectedProjectID to it
   	}
-
-	async function addTodoToDB(newTodo) {
+	async function addTodoToDB(event) {
+		const newTodo = event.detail
 		let uri = `http://localhost:3000/todos`;
 		await fetch(uri, {
 			method: 'POST',
 			body: JSON.stringify(newTodo),
 			headers: { 'Content-Type': 'application/json' },
 		});
-		getTodosFromDB()
+		// re-load todos
+		await getTodosFromDB()
+		filterTodoList()
+    }
+	// delete
+    async function deleteProjectFromDB(event) {
+		const project = event.detail
+		// delete the project
+        let uri = `http://localhost:3000/projects/${project.id}`;
+        await fetch(uri, { method: 'DELETE' });
+		// delete any todos that have the same todo id
+		const associatedTodoIDList = getAssociatedTodoDBIDs(project.id)
+		await deleteAssociatedTodosFromDB(associatedTodoIDList)
+		console.log(filteredTodoList)
+
+		// retrieve the up-to-date data
+		await getProjectsFromDB()
+		await getTodosFromDB()
+
+		selectedProjectID = -1;
+		filterTodoList()
+
+    }
+	function getAssociatedTodoDBIDs(projectID) {
+        const associatedTodoIDList = todoListData
+        .filter((todo) => todo.projectID == projectID)
+        .map((todo) => todo.id);
+        return associatedTodoIDList;
+    }
+	async function deleteAssociatedTodosFromDB(associatedTodoIDList) {
+        for (let todoID of associatedTodoIDList) {
+            let uri = `http://localhost:3000/todos/${todoID}`;
+            await fetch(uri, { method: 'DELETE' });
+        }
+    }
+	async function deleteTodoFromDB(event) {
+		const todoID = event.detail
+        let uri = `http://localhost:3000/todos/${todoID}`;
+        await fetch(uri, { method: 'DELETE' });
+		// re-load todos
+		await getTodosFromDB()
+		filterTodoList()
+    }
+	// edit
+	async function editTodoInDB(event) {
+		const editedTodo = event.detail
+        let uri = `http://localhost:3000/todos/${editedTodo.id}`;
+        await fetch(uri, {
+            method: 'PUT',
+            body: JSON.stringify(editedTodo),
+            headers: { 'Content-Type': 'application/json' },
+        });
+		// re-load todos
+		await getTodosFromDB()
+		filterTodoList()
     }
 
-  	// get data on initialization
-  	getProjectsFromDB()
-  	getTodosFromDB()
-
-  	// handle adding a new project
-  	const submitProject = (event) => {
-    	const newProjectName = event.detail
-    	const newProject = {
-      	username: 'default',
-      	projectName: newProjectName,
-		}
-
-    	addProjectToDB(newProject)
-  	}
-
-	// handle adding a new todo
-	const submitTodo = (event) => {
-    	const newTodo = event.detail
-    	addTodoToDB(newTodo)
-  	}
-  
-  	// filter functions
+  	/* FILTERING DATA */
+	let selectedTimePeriod = 'All'
   	let selectedProjectID = -1
 	let filteredTodoList = []
-
-	const selectProject = (event) => {
-		selectedProjectID = event.detail
-		filterTodoList()
-	}
 
 	function filterTodoList() {
         // first, filter by project
@@ -79,21 +168,88 @@
             filteredTodoList = todoListData;
         }
         // then filter by date
-        // prettier-ignore
-        // filteredTodoList = filterByDate(filteredTodoList, filterSettings.dateIndex);
+        filteredTodoList = filterByDate();
     }
+	function filterByDate() {
+        // get strings for today's date and a date a week from today
+        const today = todayPlusInterval(0);
+        const oneWeek = todayPlusInterval(7);
+
+        if (selectedTimePeriod === 'week') {
+            filteredTodoList = filteredTodoList.filter((todo) => {
+                if (todo.duedate < oneWeek && todo.duedate >= today) {
+                    return true;
+                }
+            });
+        } else if (selectedTimePeriod === 'day') {
+            filteredTodoList = filteredTodoList.filter((todo) => {
+                if (todo.duedate == today) {
+                    return true;
+                }
+            });
+        } else if (selectedTimePeriod === 'past') {
+            filteredTodoList = filteredTodoList.filter((todo) => {
+                if (todo.duedate < today) {
+                    return true;
+                }
+            });
+        }
+        return filteredTodoList;
+    }
+    function todayPlusInterval(interval) {
+        const today = new Date();
+        let day = today.getDate();
+        let month = today.getMonth() + 1;
+        let year = today.getFullYear();
+
+        const int = interval - 1;
+        const thirtyDayMonths = [4, 6, 9, 11];
+
+        if (month == '02' && day >= 28 - int) {
+            day = day + interval - 28;
+            month = month + 1;
+        } else if (thirtyDayMonths.includes(month) && day >= 30 - int) {
+            day = day + interval - 30;
+            month = month + 1;
+        } else if (day >= 31 - int && month == '12') {
+            day = day + interval - 31;
+            month = 1;
+            year = year + 1;
+        } else if (day >= 30 - int) {
+            day = day + interval - 31;
+            month = month + 1;
+        } else {
+            day = day + interval;
+        }
+
+        const padMonth = month.toString().padStart(2, 0);
+        const padDay = day.toString().padStart(2, 0);
+        const newDate = `${year}-${padMonth}-${padDay}`;
+
+        return newDate;
+    }
+
+	// run filterTodoList if either bound variable changes
+	$: selectedProjectID && filterTodoList()
+	$: selectedTimePeriod && filterTodoList()
 
 </script>
 
-<Header />
+{#if !loginFlag}
+	<Login { usernameListData} on:addNewUser={ addUsernameToDB } on:loginSuccess={ loginSuccess }/>
+{:else}
+	<Header { username } on:logout={logout}/>
+{/if}
+
 <div id="full-container">
 
 	<div id="menu">
-		<ProjectList { projectListData } { selectedProjectID } on:selectProject={selectProject} on:submitProject={submitProject}/>
+		<TimePeriodList bind:selectedTimePeriod />
+		<ProjectList { username } { projectListData } bind:selectedProjectID on:submitProject={addProjectToDB} on:deleteProject={deleteProjectFromDB} />
 	</div>
 
 	<div id="todo-view">
-		<TodoView { filteredTodoList } { projectListData } on:submitTodo={submitTodo}/>
+		<TodoView { username } { filteredTodoList } { projectListData } on:submitTodo={addTodoToDB} on:deleteTodo={deleteTodoFromDB} on:editTodo={editTodoInDB}/>
 	</div>
 
 </div>

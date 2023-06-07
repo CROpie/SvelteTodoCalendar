@@ -1,63 +1,48 @@
 <script>
     import { createEventDispatcher } from "svelte";
-
-    export let projectListData;
-    export let newTodoFlag;
-    export let username;
-
     const dispatch = createEventDispatcher()
 
-    let dropdownProjectID;
-    let newTodo = {
-        username: username,
-        name: '',
-        duedate: '',
-        desc: '',
-        notes: '',
-        projectID: '',
+    export let todo
+    export let editTodoFlag
+
+    // make a new todo without dateFlag & prettyDuedate
+    let editedTodo = {
+        username: todo.username,
+        projectID: todo.projectID,
+        name: todo.name,
+        desc: todo.desc,
+        duedate: todo.duedate,
+        notes: todo.notes,
+        id: todo.id
     }
 
-    // effect of submitting a todo
     const submitHandler = () => {
-        // for some reason, dropdown binding works differently - doesn't apply automatically
-        newTodo.projectID = dropdownProjectID;
-
-        // check the data to make sure all necessary fields are filled in
-
-        // submit to database
-        dispatch('submitTodo', newTodo)
-
-        // removes <NewTodo> from the DOM, which also has the effect of resetting the newTodo fields via destroying the current instance
-        newTodoFlag = false;
+        // sent to App.svelte for PUT method
+        dispatch('editTodo', editedTodo)
+        editTodoFlag = -1
     }
 
 </script>
 
 <form on:submit|preventDefault={submitHandler}>
     <div class="todo new-todo">
-        <input class="todo-input-field name" placeholder="New Todo" bind:value={newTodo.name} required>
+        <input class="todo-input-field name" placeholder="New Todo" bind:value={editedTodo.name} required>
         <div class="todo-date"></div>
-        <input type="date" class="todo-input-field date" bind:value={newTodo.duedate} required>
+        <input type="date" class="todo-input-field date" bind:value={editedTodo.duedate} required>
     </div>
+
+    <!-- Changed Notes to be contenteditable div to ensure that the height auto-adjusts as required (doesn't with input)-->
 
     <div class="open-todo new">
         <div class="open-todo-data">
-            <input class="todo-input-field description" placeholder="Description" bind:value={newTodo.desc}>
-
-            <!-- Changed Notes to be contenteditable div to ensure that the height auto-adjusts as required (doesn't with input)-->
-            <!-- <input class="todo-input-field notes" placeholder="Notes" bind:value={newTodo.notes}> -->
-            <div class="todo-input-field notes" data-placeholder="Notes" bind:textContent={newTodo.notes} contenteditable="true"></div>
-
-            <select id="project-dropdown" bind:value={dropdownProjectID}>
-                {#each projectListData as project}
-                    <option class="dropdown-option" value={project.id}>{project.projectName}</option>
-                {/each}
-            </select>
+            <input class="todo-input-field description" placeholder="Description" bind:value={editedTodo.desc}>
+            <div class="todo-input-field notes" placeholder="Notes" bind:textContent={editedTodo.notes} contenteditable="true"></div>
         </div>
         <button class="todo-submit-button">✔</button>
     </div>
 
 </form>
+
 
 <style>
 
@@ -77,6 +62,7 @@
         --font-shadow: 2px 2px 2px black;
         font-size: 1rem;
     }
+    
     .new-todo {
         margin-top: 0.5rem;
         color: greenyellow;
@@ -84,9 +70,11 @@
     .todo:hover {
         background-color: rgba(138, 43, 226, 0.7);
     }
+    
     .todo:active {
         background-color: rgba(211, 211, 211, 0.2);
     }
+    
     .todo-date {
         color: white;
         font-size: 1rem;
@@ -95,11 +83,13 @@
     }
     
     /* new todo */
+    
     .todo-input-field {
         background-color: transparent;
         font-size: 1rem;
         color: white;
     }
+    
     .todo-input-field.name {
         color: greenyellow;
     }
@@ -115,48 +105,16 @@
     }
     
     /* shadow present until user has typed in the field*/
-    /* need to find a fix for contenteditable divs */
     .todo-input-field {
-        box-shadow: none;
-        outline: none;
-        border: none;
-    }
-
-    .todo-input-field:placeholder-shown,
-    .notes {
         box-shadow: 0 0 10px #9ecaed;
         border-radius: 7px;
         padding-left: 1rem;
         margin-left: -1rem;
-    }
-
-    /* need to use this for the contentediable divs because they can't have a true placeholder */
-    .notes.todo-input-field:empty:before {
-        content: attr(data-placeholder);
-        color: white;
-    }
-    
-    /* dropdown-specific */
-    #project-dropdown {
+        outline: none;
         border: none;
-        background-color: transparent;
-        font-size: 1.5rem;
-        color: orange;
+        height: auto;
     }
-    
-    option {
-        color: white;
-        background-color: black;
-    }
-    
-    option:checked {
-        color: orange;
-    }
-    
-    option:hover {
-        background-color: blueviolet;
-    }
-    
+        
     .todo-submit-button {
         padding: 0.5rem;
         font-size: 1.5rem;
@@ -201,6 +159,4 @@
     .open-todo.new {
         margin-top: 0;
     }
-
-
     </style>

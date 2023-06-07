@@ -1,27 +1,99 @@
 <script>
     import NewTodo from '$root/components/NewTodo.svelte'
+    import EditTodo from '$root/components/EditTodo.svelte'
+
+    import { afterUpdate } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher()
 
     export let filteredTodoList;
     export let projectListData;
+    export let username;
 
     let selectedTodo;
     let newTodoFlag = false;
+    let editTodoFlag = -1;
 
-    // functions to sort the date and make it look nicer
+    /* PRETTIFYING THE DATE */
     function sortTodosByDate() {
         filteredTodoList = filteredTodoList.sort((a, b) =>
             a.duedate > b.duedate ? 1 : -1
         );
     }
+    function flagDateColourCoding() {
+        const dateToday = todayPlusInterval(0);
+        const dateTomorrow = todayPlusInterval(1);
+        const dateDayAfterTomorrow = todayPlusInterval(2);
+        filteredTodoList.forEach((todo) => {
+            // Flag certain todo dates for text and colour alterations
+            if (todo.duedate == dateToday) {
+                todo.dateFlag = 'Today';
+            } else if (todo.duedate == dateTomorrow) {
+                todo.dateFlag = 'Tomorrow';
+            } else if (todo.duedate == dateDayAfterTomorrow) {
+                todo.dateFlag = 'DayAfterTomorrow';
+            } else if (todo.duedate < dateToday) {
+                todo.dateFlag = 'Past';
+            }
+        });
+    }
+    function todayPlusInterval(interval) {
+        const today = new Date();
+        let day = today.getDate();
+        let month = today.getMonth() + 1;
+        let year = today.getFullYear();
 
-    // effect of clicking new todo
+        const int = interval - 1;
+        const thirtyDayMonths = [4, 6, 9, 11];
+
+        if (month == '02' && day >= 28 - int) {
+            day = day + interval - 28;
+            month = month + 1;
+        } else if (thirtyDayMonths.includes(month) && day >= 30 - int) {
+            day = day + interval - 30;
+            month = month + 1;
+        } else if (day >= 31 - int && month == '12') {
+            day = day + interval - 31;
+            month = 1;
+            year = year + 1;
+        } else if (day >= 30 - int) {
+            day = day + interval - 31;
+            month = month + 1;
+        } else {
+            day = day + interval;
+        }
+
+        const padMonth = month.toString().padStart(2, 0);
+        const padDay = day.toString().padStart(2, 0);
+        const newDate = `${year}-${padMonth}-${padDay}`;
+
+        return newDate;
+    }
+    function alterDateToBePretty() {
+        filteredTodoList.forEach((todo) => {todo.prettyduedate = prettifyDate(todo.duedate)});
+    }
+    function prettifyDate(dateString) {
+        const splitString = dateString.split('-');
+        const year = splitString[0].slice(2, 4);
+        // prettier-ignore
+        const monthCode = [
+            'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', ];
+        let month = splitString[1];
+        month = monthCode[parseInt(month)];
+        const day = splitString[2];
+        const newString = `${day} ${month}\u00A0\u00A0'${year}`;
+        return newString;
+    }
+
+    /* BOUND EVENTS */
     const clickNewTodo = () => {
         newTodoFlag = true;
         // close an open todo if open
         selectedTodo = -1;
+        // close edit if open
+        editTodoFlag = -1;
     }
-
-    // effect of clicking a todo
     const clickTodo = (todoID) => {
         // clicking an open todo will close it
         // otherwise, open it
@@ -32,47 +104,65 @@
         }
         // close new todo if open
         newTodoFlag = false;
+        // close edit if open
+        editTodoFlag = -1;
+    }
+    const deleteTodo = (todoID) => {
+        dispatch('deleteTodo', todoID)
+    }
+    const editTodo = (todoID) => {
+        editTodoFlag = todoID;
     }
 
-    function initialize() {
-        sortTodosByDate()
-        console.log('??')
-    }
-
-    sortTodosByDate()
+    /* INITIALIZATION */
+    // runs after the DOM is synced with the data
+    // since getting from DB is async, would otherwise run before the data had arrived (if called immediately).
+    afterUpdate(() => {
+		sortTodosByDate()
+        flagDateColourCoding();
+        alterDateToBePretty();
+	})
 
 </script>
 
 <div id="todo-container">
-    {#if !newTodoFlag}
-
+    
+{#if !newTodoFlag}
     <div class="todo new-todo" on:click={clickNewTodo}>New Todo</div>
+{:else}
+    <NewTodo { username } { projectListData } on:submitTodo  bind:newTodoFlag/>
+{/if}
 
-    {:else}
+{#each filteredTodoList as todo (todo.id)}
 
-    <NewTodo { projectListData } on:submitTodo />
-
-    {/if}
-
-    {#each filteredTodoList as todo (todo.id)}
+{#if editTodoFlag === todo.id}
+    <EditTodo { todo } on:editTodo bind:editTodoFlag />
+{:else}
 
     <div class="todo" on:click={() => clickTodo(todo.id)}>
         <div class="todo-name">{todo.name}</div>
-        <div class="todo-date">{todo.duedate}</div>
-        <div class="todo-del-button">✘</div>
+    {#if todo.dateFlag && todo.dateFlag != 'Past'} <!-- write today, tomorrow, day after tomorrow -->
+        <div class="todo-date {todo.dateFlag}">{todo.dateFlag}</div>
+    {:else} <!-- past, future write the date itself -->
+        <div class="todo-date {todo.dateFlag}">{todo.prettyduedate}</div>
+    {/if}
+        <div class="todo-del-button" on:click={() => deleteTodo(todo.id)}>✘</div>
     </div>
 
-        {#if selectedTodo === todo.id}
-
+    {#if selectedTodo === todo.id}
     <div class="open-todo">
         <div class="open-todo-data">
             <div class="todo-desc">{todo.desc}</div>
             <div class="todo-notes">{todo.notes}</div>
         </div>
+        <div class="todo-edit-button" on:click={() => editTodo(todo.id)}>E</div>
     </div>
-        {/if}
+    {/if}
 
-    {/each}
+    
+{/if}
+{/each}
+
 </div>
 
 <style>
@@ -112,22 +202,33 @@
     background-color: rgba(211, 211, 211, 0.2);
 }
 
-
-
 .todo-name {
     flex: 1;
     pointer-events: none;
 }
 
 .todo-date {
-    color: white;
+    color: green;
     font-size: 1rem;
     pointer-events: none;
     margin-right: 3rem;
 }
 
+.Past {
+    color: black;
+}
+.Today {
+    color: red;
+}
+.Tomorrow {
+    color: orange;
+}
+.DayAfterTomorrow {
+    color: yellow;
+}
 
 .todo-del-button {
+    cursor: crosshair;
     padding-right: 0.5rem;
 }
 
@@ -145,74 +246,6 @@
     visibility: visible;
 }
 
-/* new todo */
-
-.todo-input-field {
-    background-color: transparent;
-    font-size: 1rem;
-    color: white;
-}
-
-.todo-input-field.name {
-    color: greenyellow;
-}
-.todo-input-field.date {
-    margin-right: 2rem;
-}
-.todo-input-field.description {
-    font-size: 1.5rem;
-    color: rgb(255, 221, 0);
-}
-.todo-input-field.notes {
-    font-size: 1.5rem;
-}
-
-/* shadow present until user has typed in the field*/
-.todo-input-field:placeholder-shown {
-    box-shadow: 0 0 10px #9ecaed;
-    border-radius: 7px;
-    padding-left: 1rem;
-    margin-left: -1rem;
-}
-
-.todo-input-field {
-    box-shadow: none;
-    outline: none;
-    border: none;
-}
-
-/* dropdown-specific */
-#project-dropdown {
-    border: none;
-    background-color: transparent;
-    font-size: 1.5rem;
-    color: orange;
-}
-
-option {
-    color: white;
-    background-color: black;
-}
-
-option:checked {
-    color: orange;
-}
-
-option:hover {
-    background-color: blueviolet;
-}
-
-.todo-submit-button {
-    padding: 0.5rem;
-    font-size: 1.5rem;
-    background-color: transparent;
-    border: none;
-    color: white;
-}
-
-.todo-submit-button:hover {
-    color: lime;
-}
 
 /* open todo */
 .open-todo {
@@ -247,7 +280,14 @@ option:hover {
     color: rgb(255, 221, 0);
 }
 
-.open-todo.new {
-    margin-top: 0;
+.todo-edit-button {
+    padding: 0.5rem;
+    font-size: 1.5rem;
+    background-color: transparent;
+}
+
+.todo-edit-button:hover {
+    cursor: pointer;
+    color: red;
 }
 </style>
