@@ -59,7 +59,7 @@
     
     
         background-color: rgba(211, 211, 211, 0.2);
-        --font-shadow: 2px 2px 2px black;
+        text-shadow: 2px 2px 2px black;
         font-size: 1rem;
     }
     
@@ -88,6 +88,15 @@
         background-color: transparent;
         font-size: 1rem;
         color: white;
+
+        box-shadow: 0 0 10px #9ecaed;
+        border-radius: 7px;
+        padding-left: 1rem;
+        margin-left: -1rem;
+        outline: none;
+        border: none;
+        height: auto;
+        text-shadow: 2px 2px 2px black;
     }
     
     .todo-input-field.name {
@@ -103,18 +112,7 @@
     .todo-input-field.notes {
         font-size: 1.5rem;
     }
-    
-    /* shadow present until user has typed in the field*/
-    .todo-input-field {
-        box-shadow: 0 0 10px #9ecaed;
-        border-radius: 7px;
-        padding-left: 1rem;
-        margin-left: -1rem;
-        outline: none;
-        border: none;
-        height: auto;
-    }
-        
+            
     .todo-submit-button {
         padding: 0.5rem;
         font-size: 1.5rem;
@@ -139,7 +137,7 @@
         color: white;
         font-size: 1.5rem;
     
-        --font-shadow: 2px 2px 2px black;
+        text-shadow: 2px 2px 2px black;
     
         display: flex;
         justify-content: space-between;

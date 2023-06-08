@@ -20,9 +20,10 @@
 </ul>
 
 <style>
-    /* project list */
     #time-period-list {
         list-style-type: none;
+        color: white;
+        text-shadow: 2px 2px 2px black;
     }
     .time-period-button-container {
         cursor: pointer;

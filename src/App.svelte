@@ -1,9 +1,11 @@
 <script>
 	import Login from '$root/components/Login.svelte'
   	import Header from '$root/components/Header.svelte'
+	import ViewList from '$root/components/ViewList.svelte'
 	import TimePeriodList from '$root/components/TimePeriodList.svelte'
 	import ProjectList from '$root/components/ProjectList.svelte'
   	import TodoView from '$root/components/TodoView.svelte'
+	import CalendarView from '$root/components/CalendarView.svelte'
 	import { onMount } from 'svelte'
 
 	/* INITIALIZATION */
@@ -102,6 +104,8 @@
 		await getTodosFromDB()
 		filterTodoList()
     }
+	async function addDefaultDataToDB(event) {
+	}
 	// delete
     async function deleteProjectFromDB(event) {
 		const project = event.detail
@@ -156,6 +160,7 @@
     }
 
   	/* FILTERING DATA */
+	let selectedView = 'List'
 	let selectedTimePeriod = 'All'
   	let selectedProjectID = -1
 	let filteredTodoList = []
@@ -236,7 +241,7 @@
 </script>
 
 {#if !loginFlag}
-	<Login { usernameListData} on:addNewUser={ addUsernameToDB } on:loginSuccess={ loginSuccess }/>
+	<Login { usernameListData} on:addNewUser={ addUsernameToDB } on:addDefaultData={ addDefaultDataToDB } on:loginSuccess={ loginSuccess }/>
 {:else}
 	<Header { username } on:logout={logout}/>
 {/if}
@@ -244,13 +249,20 @@
 <div id="full-container">
 
 	<div id="menu">
+		<ViewList bind:selectedView />
 		<TimePeriodList bind:selectedTimePeriod />
 		<ProjectList { username } { projectListData } bind:selectedProjectID on:submitProject={addProjectToDB} on:deleteProject={deleteProjectFromDB} />
 	</div>
 
+	{#if selectedView === 'List'}
 	<div id="todo-view">
 		<TodoView { username } { filteredTodoList } { projectListData } on:submitTodo={addTodoToDB} on:deleteTodo={deleteTodoFromDB} on:editTodo={editTodoInDB}/>
 	</div>
+	{:else if selectedView === 'Calendar'}
+	<div id="calendar-view">
+		<CalendarView { filteredTodoList } { username } { projectListData } on:submitTodo={addTodoToDB}/>
+	</div>
+	{/if}
 
 </div>
 
@@ -262,9 +274,7 @@
 		font-size: 2rem;
 	}
 	#menu {
-		position: sticky;
 		height: 100vh;
-		top: 0;
 		flex: 0;
 		min-width: 350px;
 		display: flex;
@@ -274,18 +284,19 @@
 		padding-left: 2rem;
 		padding-right: 2rem;
 
-		--font-shadow: 2px 2px 2px black;
-
-		/*background-image: url(./Images/3359732.jpg);*/
+		background-image: url(./img/3359732.jpg);
 		background-size: 100% 100%;
 
 		background-color: grey;
 	}
-	#todo-view {
+	#todo-view,
+	#calendar-view {
+
+		height: 100vh;
 		flex: 1;
 		border: 2px solid black;
 		min-width: 450px;
-		/*background-image: url(./Images/3626461.jpg);*/
+		background-image: url(./img/3626461.jpg);
 		background-size: cover;
 		background-repeat: no-repeat;
 		background-attachment: fixed;

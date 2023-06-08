@@ -72,9 +72,8 @@
         margin-left: 2rem;
         margin-right: 2rem;
     
-    
         background-color: rgba(211, 211, 211, 0.2);
-        --font-shadow: 2px 2px 2px black;
+        text-shadow: 2px 2px 2px black;
         font-size: 1rem;
     }
     .new-todo {
@@ -99,6 +98,7 @@
         background-color: transparent;
         font-size: 1rem;
         color: white;
+        text-shadow: 2px 2px 2px black;
     }
     .todo-input-field.name {
         color: greenyellow;
@@ -115,7 +115,6 @@
     }
     
     /* shadow present until user has typed in the field*/
-    /* need to find a fix for contenteditable divs */
     .todo-input-field {
         box-shadow: none;
         outline: none;
@@ -123,7 +122,8 @@
     }
 
     .todo-input-field:placeholder-shown,
-    .notes {
+    .notes,
+    .date:invalid {
         box-shadow: 0 0 10px #9ecaed;
         border-radius: 7px;
         padding-left: 1rem;
@@ -131,9 +131,15 @@
     }
 
     /* need to use this for the contentediable divs because they can't have a true placeholder */
-    .notes.todo-input-field:empty:before {
+    .notes:empty:before {
         content: attr(data-placeholder);
         color: white;
+        opacity: 0.5;
+    }
+    .notes:not(:empty) {
+        box-shadow: none;
+        outline: none;
+        border: none;
     }
     
     /* dropdown-specific */
@@ -142,6 +148,7 @@
         background-color: transparent;
         font-size: 1.5rem;
         color: orange;
+        text-shadow: 2px 2px 2px black;
     }
     
     option {

@@ -6,24 +6,26 @@
 </script>
 
 <div id="header">
+    <img src="./img/BearbeerCrop.png">
     <div class="header-message">Hello, {username}!</div>
     <button class="logout-button" on:click={() => dispatch('logout')}>LOG OUT</button>
 </div>
 
 <style>
+
 #header {
     display: flex;
     justify-content: space-between;
-
+    width: 100%;
+    padding-left: 4rem;
     height: var(--header-height);
     text-align: center;
-    margin-left: 350px;
 
     /* somehow vertical-align and line-height work together to vertically center the text*/
     vertical-align: middle;
     line-height: var(--header-height);
 
-    background-color: rgba(211, 211, 211, 0.7);
+    background-color: rgba(37, 36, 36, 0.7);
     color: yellow;
     text-shadow: 2px 2px 2px black;
 

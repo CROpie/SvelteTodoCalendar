@@ -50,6 +50,8 @@
     /* project list */
     #project-list {
         list-style-type: none;
+        color: white;
+        text-shadow: 2px 2px 2px black;
     }
     .proj-button-container {
         cursor: pointer;

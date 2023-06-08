@@ -32,7 +32,7 @@
             } else if (todo.duedate == dateTomorrow) {
                 todo.dateFlag = 'Tomorrow';
             } else if (todo.duedate == dateDayAfterTomorrow) {
-                todo.dateFlag = 'DayAfterTomorrow';
+                todo.dateFlag = 'Day_After_Tomorrow';
             } else if (todo.duedate < dateToday) {
                 todo.dateFlag = 'Past';
             }
@@ -186,7 +186,7 @@
 
 
     background-color: rgba(211, 211, 211, 0.2);
-    --font-shadow: 2px 2px 2px black;
+    text-shadow: 2px 2px 2px black;
     font-size: 1rem;
 }
 
@@ -208,14 +208,15 @@
 }
 
 .todo-date {
-    color: green;
+    color: lightgreen;
     font-size: 1rem;
     pointer-events: none;
     margin-right: 3rem;
+
 }
 
 .Past {
-    color: black;
+    color: grey;
 }
 .Today {
     color: red;
@@ -223,7 +224,7 @@
 .Tomorrow {
     color: orange;
 }
-.DayAfterTomorrow {
+.Day_After_Tomorrow {
     color: yellow;
 }
 
@@ -259,7 +260,7 @@
     color: white;
     font-size: 1.5rem;
 
-    --font-shadow: 2px 2px 2px black;
+    text-shadow: 2px 2px 2px black;
 
     display: flex;
     justify-content: space-between;
